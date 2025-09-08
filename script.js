@@ -1,77 +1,88 @@
-//-------🔰 promise -> pending, resolve(success), reject(error)
+/* ======================================================
+   BBC Bangla Project
+   - Categories load
+   - News load by category
+   - Bookmark system
+   - News details modal
+   ====================================================== */
 
-//--------⚡ Api request----> main Structure
-// fetch('url') //  promise
-//   .then((res) => res.json()) // response ----> promise
-//   .then((data) => {
-//     console.log(data);
-//   })
-//   .catch((err) => {
-//     console.log('Error:', err);
-//   });
-
-// //--------system 02⚡ Api request----> function rapping(মোড়াতে পারি)
-
-// const loadCategoryAsync = async () => {
-//   try {
-//     const res = await fetch('https://news-api-fs.vercel.app/api/categories');
-//     const data = await res.json();
-//     console.log(data);
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-
-// loadCategoryAsync();
-
-//--------system 01-🔰  Api request----> function rapping(মোড়াতে পারি)
-// ⚡ add categories
+// ------------------🔰 DOM Elements -------------------
 const categoryContainer = document.getElementById('categoryContainer');
-
 const newsContainer = document.getElementById('newsContainer');
-
 const bookmarkContainer = document.getElementById('bookmarkContainer');
-
 const bookmarkCount = document.getElementById('bookmarkCount');
 
-// modal
+// Modal elements
 const newsDetailsModal = document.getElementById('news-details-modal');
 const modalContainer = document.getElementById('modalContainer');
 
+// Bookmark array (all bookmark data store হবে এখানে)
 let bookmarks = [];
 
+// =====================================================
+// 🔰 Helper Functions (Loading / Error / Empty Message)
+// =====================================================
+
+// Loading state দেখানোর জন্য
+const showLoading = () => {
+  newsContainer.innerHTML = `
+    <div class="bg-green-500 p-3">Loading...</div>
+  `;
+};
+
+// Error state দেখানোর জন্য
+const showError = () => {
+  newsContainer.innerHTML = `
+    <div class="bg-red-500 p-3">Something went wrong</div>
+  `;
+};
+
+// যদি news না থাকে (empty message)
+const showEmptyMessage = () => {
+  newsContainer.innerHTML = `
+    <div class="bg-orange-500 p-3">No news found for this category</div>
+  `;
+};
+
+// =====================================================
+// 🔰 Load & Show Categories
+// =====================================================
+
+// API দিয়ে categories load করা
 const loadCategory = () => {
-  fetch('https://news-api-fs.vercel.app/api/categories') //  promise
-    .then((res) => res.json()) // response ----> promise
+  fetch('https://news-api-fs.vercel.app/api/categories')
+    .then((res) => res.json())
     .then((data) => {
-      //   console.log(data.categories);
-      //-----------------------⚡ add categories v1
       const categories = data.categories;
       showCategory(categories);
     })
     .catch((err) => {
       console.log('Error:', err);
+      showError();
     });
 };
 
-//-----------------------⚡ show categories v1
+// Category UI show করা
 const showCategory = (categories) => {
   categories.forEach((cat) => {
-    categoryContainer.innerHTML += ` 
-        <li id="${cat.id}" class="hover:border-b-4 hover:border-red-600 border-red-600 cursor-pointer">${cat.title}</li>
-        `;
+    categoryContainer.innerHTML += `
+      <li id="${cat.id}" class="hover:border-b-4 hover:border-red-600 cursor-pointer">
+        ${cat.title}
+      </li>
+    `;
   });
 
-  //------------------------⚡ categories v1 add selector/indicator
+  // Category click event handler
   categoryContainer.addEventListener('click', (e) => {
     const allLi = document.querySelectorAll('li');
-    //-------------✨ forEach --> border remove
+
+    // পূর্বের selected category border remove করা
     allLi.forEach((li) => {
       li.classList.remove('border-b-4');
     });
-    //-------------✨  border add
+
+    // নতুন selected category border add করা
     if (e.target.localName === 'li') {
-      //   console.log(e.target);
       showLoading();
       e.target.classList.add('border-b-4');
       loadNewsByCategory(e.target.id);
@@ -79,166 +90,134 @@ const showCategory = (categories) => {
   });
 };
 
-//------------------------🔰  add News by Categories
+// =====================================================
+// 🔰 Load & Show News By Category
+// =====================================================
+
+// Category অনুযায়ী news load
 const loadNewsByCategory = (categoryId) => {
-  //   console.log(categoryId);
   fetch(`https://news-api-fs.vercel.app/api/categories/${categoryId}`)
     .then((res) => res.json())
     .then((data) => {
-      //   console.log(data.articles);
-
       showNewsByCategory(data.articles);
     })
     .catch((err) => {
-      // console.log(err);
-      ShowError();
-      alert('Something went wrong');
+      console.log(err);
+      showError();
     });
 };
 
-//-----------------------⚡ show news by categories
+// Category অনুযায়ী news show
 const showNewsByCategory = (articles) => {
-  // console.log(articles);
-
-  // ভারত
-
   if (articles.length === 0) {
     showEmptyMessage();
     alert('No news found for this category!');
     return;
   }
-  //-------------✨  remove news
+
+  // প্রথমে পুরনো news clear করা
   newsContainer.innerHTML = '';
 
-  //-------------✨  show news
+  // নতুন news show করা
   articles.forEach((article) => {
-    // console.log(article);
     newsContainer.innerHTML += `
-    <div class='border border-gray-300 rounded-lg overflow-hidden'>
+      <div class="border border-gray-300 rounded-lg overflow-hidden">
         <div>
-            <img src="${article.image.srcset[5].url}" />
+          <img src="${article.image.srcset[5].url}" />
         </div>
         
-        <div id='${article.id}' class="p-2">
-            <h1 class='font-extrabold'>${article.title}</h1>
-            <P class='text-sm'>${article.time}</p>
-            <button class='btn'>Bookmark</button>
-            <button class='btn'>View Details</button>
+        <div id="${article.id}" class="p-2">
+          <h1 class="font-extrabold">${article.title}</h1>
+          <p class="text-sm">${article.time}</p>
+          <button class="btn">Bookmark</button>
+          <button class="btn">View Details</button>
         </div>
-    </div>
-    
+      </div>
     `;
   });
 };
 
-//------------------------🔰  bookmark button
+// =====================================================
+// 🔰 Bookmark System
+// =====================================================
+
+// News container এ event delegation
 newsContainer.addEventListener('click', (e) => {
-  // console.log(e.target);
-  //-------------✨  button এর বাহিরে ক্লিক করলে যেন কিছু না আসে।
+  // Bookmark button clicked হলে
   if (e.target.innerText === 'Bookmark') {
-    // console.log('bookmark button clicked');
-    // console.log(e.target.parentNode.children[0].innerText);
     handleBookmarks(e);
   }
-  //-------------------🔰  View details...modal --v1
+
+  // View Details button clicked হলে
   if (e.target.innerText === 'View Details') {
     handleViewDetails(e);
   }
 });
 
-//-------------✨  button  পেরেন্ট এর টাইটেল এবং id কে ধরতে হবে।
+// Bookmark add করা
 const handleBookmarks = (e) => {
   const title = e.target.parentNode.children[0].innerText;
   const id = e.target.parentNode.id;
-  //   console.log(id);
-  // ✨ উপরে একটা খলি arry বানাতে হবে।
-  bookmarks.push({
-    title: title,
-    id: id,
-  });
-  //   console.log(bookmarks);
+
+  bookmarks.push({ title, id });
   showBookmarks(bookmarks);
 };
 
-//-----------------------⚡ show bookmarks
+// Bookmark show করা
 const showBookmarks = (bookmarks) => {
-  //   console.log(bookmarks);
   bookmarkContainer.innerHTML = '';
 
   bookmarks.forEach((bookmark) => {
     bookmarkContainer.innerHTML += `
-    <div class='border my-2 p-1'>
+      <div class="border my-2 p-1">
         <h1>${bookmark.title}</h1>
         <button onclick="handleDeleteBookmark('${bookmark.id}')" class="btn btn-xs">Delete</button>
+      </div>
     `;
   });
-  //-------------✨  bookmark Count
+
+  // Bookmark count update
   bookmarkCount.innerText = bookmarks.length;
 };
 
-//-----------------------⚡ Delete Bookmark
-// ডিলেট করার জন্য btn এ onclick দিতে হবে
+// Bookmark delete করা
 const handleDeleteBookmark = (bookmarkId) => {
-  //   console.log(bookmarkId);
-  const filteredBookmarks = bookmarks.filter(
-    (bookmark) => bookmark.id !== bookmarkId
-  );
-  bookmarks = filteredBookmarks;
+  bookmarks = bookmarks.filter((bookmark) => bookmark.id !== bookmarkId);
   showBookmarks(bookmarks);
 };
 
-//-------------------🔰  View details... modal--v2--- function
-handleViewDetails = (e) => {
+// =====================================================
+// 🔰 News Details Modal
+// =====================================================
+
+// View Details button handler
+const handleViewDetails = (e) => {
   const id = e.target.parentNode.id;
-  // console.log(id);
-  // newsDetailsModal.showModal();  // modal ta dekhacce
 
   fetch(`https://news-api-fs.vercel.app/api/news/${id}`)
     .then((res) => res.json())
     .then((data) => {
-      // console.log(data.article);
       showDetailsNews(data.article);
     })
     .catch((err) => {
       console.log(err);
+      showError();
     });
 };
 
-//-----------------------⚡ show View details or modal --v3
+// Modal এ news details দেখানো
 const showDetailsNews = (article) => {
-  console.log(article);
   newsDetailsModal.showModal();
 
-  modalContainer.innerHTML = ` 
+  modalContainer.innerHTML = `
     <h1>${article.title}</h1>
-    <img src="${article.images[0].url}"/>
+    <img src="${article.images[0].url}" />
     <p>${article.content.join('')}</p>
-  
   `;
 };
 
-//-------------------🔰  Loading...
-// এই ফাংশন উপরে  showCategory তে কল করতে হবে----
-const showLoading = () => {
-  newsContainer.innerHTML = `
-    <div class="bg-green-500 p-3">Loading...</div>
-    `;
-};
-
-//-------------------🔰  প্রযুক্তি এর Error দেখাতে, ফাংশনটি উপরে কল করতে হবে
-const ShowError = () => {
-  newsContainer.innerHTML = `
-      <div class="bg-red-500 p-3">Something went wrong</div>
-    `;
-};
-
-//-------------------🔰  ভারত এর Empty message দেখাতে, ফাংশনটি উপরে কল করতে হবে
-const showEmptyMessage = () => {
-  newsContainer.innerHTML = `
-      <div class="bg-orange-500 p-3">No news found for this category</div>
-    `;
-};
-
-loadCategory();
-//------------------------🔰  মূলপাতার মাঝে দেখাবে
-loadNewsByCategory('main');
+// =====================================================
+// 🔰 Initial Function Call
+// =====================================================
+loadCategory(); // প্রথমে category load হবে
+loadNewsByCategory('main'); // ডিফল্ট ভাবে "মূলপাতা" news show হবে

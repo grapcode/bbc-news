@@ -1,111 +1,223 @@
-/**
- * 1. api - fetch()
- * 2. forEach
- * 3. map
- * 4. join()
- * 5. push()
- * 6. filter()
- * 7. find()
- */
+/* ======================================================
+   BBC Bangla Project
+   - Categories load
+   - News load by category
+   - Bookmark system
+   - News details modal
+   ====================================================== */
 
-//---------------------❌❌ array of object ❌❌ -----------------------------
-const data = [
-  {
-    title: "'Apple Mobile'",
-    id: 'c3r4',
-    createdAt: '2025-09-04T12',
-  },
-  {
-    title: "'Samsung Mobile'",
-    id: 'u3rl',
-    createdAt: '2025-09-04T13',
-  },
-  {
-    title: "'Redmi Mobile'",
-    id: 'h1wf',
-    createdAt: '2025-09-04T14',
-  },
-  {
-    title: "'Oppo Mobile'",
-    id: 'q7gp',
-    createdAt: '2025-09-04T15',
-  },
-];
+// ------------------🔰 DOM Elements -------------------
+const categoryContainer = document.getElementById('categoryContainer');
+const newsContainer = document.getElementById('newsContainer');
+const bookmarkContainer = document.getElementById('bookmarkContainer');
+const bookmarkCount = document.getElementById('bookmarkCount');
 
-//---------------------⚡ for loop
+// Modal elements
+const newsDetailsModal = document.getElementById('news-details-modal');
+const modalContainer = document.getElementById('modalContainer');
 
-// for (let i = 0; i < data.length; i++) {
-//   //   console.log(data[i]);
-// }
+// Bookmark array (all bookmark data store হবে এখানে)
+let bookmarks = [];
 
-//---------------------⚡ for of
-// for (let d of data) {
-//   console.log(d);
-// }
+// =====================================================
+// 🔰 Helper Functions (Loading / Error / Empty Message)
+// =====================================================
 
-//---------------------⚡ forEach
-// data.forEach((d) => {
-//   console.log(d);
-// });
+// Loading state দেখানোর জন্য
+const showLoading = () => {
+  newsContainer.innerHTML = `
+    <div class="bg-green-500 p-3">Loading...</div>
+  `;
+};
 
-//---------------------❌❌ map ❌❌ -----------------------------
+// Error state দেখানোর জন্য
+const showError = () => {
+  newsContainer.innerHTML = `
+    <div class="bg-red-500 p-3">Something went wrong</div>
+  `;
+};
 
-// const titleArr = data.map((d) => {
-//   return `<span>${d.title}</span>`;
-// });
-// console.log(titleArr);
+// যদি news না থাকে (empty message)
+const showEmptyMessage = () => {
+  newsContainer.innerHTML = `
+    <div class="bg-orange-500 p-3">No news found for this category</div>
+  `;
+};
 
-//---------------------⚡uprer code er short form
-// const titleArr = data.map((d) => `<span>${d.title}</span>`);
-// console.log(titleArr);
+// =====================================================
+// 🔰 Load & Show Categories
+// =====================================================
 
-//---------------------⚡uporer array of object থেকে createdAt বাদ দিতে
-// const updatedData = data.map(({ createdAt, ...rest }) => rest);
-// console.log(updatedData);
+// API দিয়ে categories load করা
+const loadCategory = () => {
+  fetch('https://news-api-fs.vercel.app/api/categories')
+    .then((res) => res.json())
+    .then((data) => {
+      const categories = data.categories;
+      showCategory(categories);
+    })
+    .catch((err) => {
+      console.log('Error:', err);
+      showError();
+    });
+};
 
-//---------------------❌❌ join() ❌❌ -----------------------------
-// const arr = ['hello', 'tumi', 'kmn-aso'];
-// console.log(arr.join('_'));
+// Category UI show করা
+const showCategory = (categories) => {
+  categories.forEach((cat) => {
+    categoryContainer.innerHTML += `
+      <li id="${cat.id}" class="hover:border-b-4 hover:border-red-600 cursor-pointer">
+        ${cat.title}
+      </li>
+    `;
+  });
 
-//---------------------❌❌ push() ❌❌ -----------------------------
-// data.push(10);
-// data.push({
-//   title: 'this is a title',
-// });
-// console.log(data);
+  // Category click event handler
+  categoryContainer.addEventListener('click', (e) => {
+    const allLi = document.querySelectorAll('li');
 
-//---------------------❌❌ filter() ❌❌ -----------------------------
+    // পূর্বের selected category border remove করা
+    allLi.forEach((li) => {
+      li.classList.remove('border-b-4');
+    });
 
-//---------------------⚡number diye
-// const arr = [1, 2, 3, 3, 3, 4, 5, 6, 7];
-// const filteredArray = arr.filter((num) => num !== 3);
-// console.log(filteredArray);
+    // নতুন selected category border add করা
+    if (e.target.localName === 'li') {
+      showLoading();
+      e.target.classList.add('border-b-4');
+      loadNewsByCategory(e.target.id);
+    }
+  });
+};
 
-//---------------------⚡uporer array of object
-// const filteredData = data.filter((d) => d.id !== 'c3r4');
-// console.log(filteredData);
+// =====================================================
+// 🔰 Load & Show News By Category
+// =====================================================
 
-//---------------------❌❌ find() ❌❌ -----------------------------
-// const foundData = data.find((d) => d.id === 'c3r4');
-// //---------------------⚡ one Element return kore
-// //---------------------⚡ undefined === falsy ---- false
-// //---------------------⚡ jodi pawa jay === truthy
-// console.log(foundData);
+// Category অনুযায়ী news load
+const loadNewsByCategory = (categoryId) => {
+  fetch(`https://news-api-fs.vercel.app/api/categories/${categoryId}`)
+    .then((res) => res.json())
+    .then((data) => {
+      showNewsByCategory(data.articles);
+    })
+    .catch((err) => {
+      console.log(err);
+      showError();
+    });
+};
 
-// //---------------------⚡truthy & falsy
-// if (foundData) {
-//   console.log('pawa gece', true);
-// } else {
-//   console.log('Pawa jayni', false);
-// }
+// Category অনুযায়ী news show
+const showNewsByCategory = (articles) => {
+  if (articles.length === 0) {
+    showEmptyMessage();
+    alert('No news found for this category!');
+    return;
+  }
 
-//---------------------❌❌ script.js এর add categories কিভাবে করছে তা বুঝালো ❌❌ -----------------------------
-// const arr = ['hello', 'hi', 'dhjdgh']
-// let container = ""
+  // প্রথমে পুরনো news clear করা
+  newsContainer.innerHTML = '';
 
-// arr.forEach(a => {
-//  // container += a
-//   container =  container + `<span>${a}</span>`;
-// })
+  // নতুন news show করা
+  articles.forEach((article) => {
+    newsContainer.innerHTML += `
+      <div class="border border-gray-300 rounded-lg overflow-hidden">
+        <div>
+          <img src="${article.image.srcset[5].url}" />
+        </div>
+        
+        <div id="${article.id}" class="p-2">
+          <h1 class="font-extrabold">${article.title}</h1>
+          <p class="text-sm">${article.time}</p>
+          <button class="btn">Bookmark</button>
+          <button class="btn">View Details</button>
+        </div>
+      </div>
+    `;
+  });
+};
 
-// console.log(container)
+// =====================================================
+// 🔰 Bookmark System
+// =====================================================
+
+// News container এ event delegation
+newsContainer.addEventListener('click', (e) => {
+  // Bookmark button clicked হলে
+  if (e.target.innerText === 'Bookmark') {
+    handleBookmarks(e);
+  }
+
+  // View Details button clicked হলে
+  if (e.target.innerText === 'View Details') {
+    handleViewDetails(e);
+  }
+});
+
+// Bookmark add করা
+const handleBookmarks = (e) => {
+  const title = e.target.parentNode.children[0].innerText;
+  const id = e.target.parentNode.id;
+
+  bookmarks.push({ title, id });
+  showBookmarks(bookmarks);
+};
+
+// Bookmark show করা
+const showBookmarks = (bookmarks) => {
+  bookmarkContainer.innerHTML = '';
+
+  bookmarks.forEach((bookmark) => {
+    bookmarkContainer.innerHTML += `
+      <div class="border my-2 p-1">
+        <h1>${bookmark.title}</h1>
+        <button onclick="handleDeleteBookmark('${bookmark.id}')" class="btn btn-xs">Delete</button>
+      </div>
+    `;
+  });
+
+  // Bookmark count update
+  bookmarkCount.innerText = bookmarks.length;
+};
+
+// Bookmark delete করা
+const handleDeleteBookmark = (bookmarkId) => {
+  bookmarks = bookmarks.filter((bookmark) => bookmark.id !== bookmarkId);
+  showBookmarks(bookmarks);
+};
+
+// =====================================================
+// 🔰 News Details Modal
+// =====================================================
+
+// View Details button handler
+const handleViewDetails = (e) => {
+  const id = e.target.parentNode.id;
+
+  fetch(`https://news-api-fs.vercel.app/api/news/${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      showDetailsNews(data.article);
+    })
+    .catch((err) => {
+      console.log(err);
+      showError();
+    });
+};
+
+// Modal এ news details দেখানো
+const showDetailsNews = (article) => {
+  newsDetailsModal.showModal();
+
+  modalContainer.innerHTML = `
+    <h1>${article.title}</h1>
+    <img src="${article.images[0].url}" />
+    <p>${article.content.join('')}</p>
+  `;
+};
+
+// =====================================================
+// 🔰 Initial Function Call
+// =====================================================
+loadCategory(); // প্রথমে category load হবে
+loadNewsByCategory('main'); // ডিফল্ট ভাবে "মূলপাতা" news show হবে
