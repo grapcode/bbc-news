@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBC Bangla </title>
+    <!-- daisyUI & tailwind cdn  -->
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- google font link  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@100..900&display=swap"
+        rel="stylesheet">
+    <!-- font sytle  -->
+    <style>
+        * {
+            font-family: "Noto Serif Bengali", serif;
+        }
+    </style>
+</head>
+
+<body>
+    <!--☑️ naver section  -->
+    <header>
+        <!--☑️ naver top  -->
+        <div class="bg-red-600 py-5 px-5">
+            <div class="max-w-7xl mx-auto ">
+                <img class="invert" src="./assets/logo.svg" alt="">
+            </div>
+        </div>
+        <!--☑️ naver bottom  -->
+        <nav class="max-w-7xl mx-auto px-5 border-b border-gray-200">
+            <ul id="categoryContainer" class="flex gap-10 text-lg py-3">
+                <!--☑️ inner HTML a attached  -->
+                <!-- <li class="hover:border-b-4 hover:border-red-600 cursor-pointer">মূলপাতা</li>
+                <li class="hover:border-b-4 hover:border-red-600 cursor-pointer">রাজনীতি</li>
+                <li class="hover:border-b-4 hover:border-red-600 cursor-pointer">বিশ্ব</li> -->
+            </ul>
+        </nav>
+    </header>
+    <!--☑️ main  -->
+    <main class="max-w-7xl mx-auto  px-5 mt-5 grid grid-cols-4 gap-5">
+        <!--⚡ news container  section -->
+        <section class="grid grid-cols-3 col-span-3 gap-5" id="newsContainer">
+            <div class="bg-red-500 p-3">Loading...</div>
+        </section>
+
+        <!--✨ book mark section  -->
+        <aside class="col-span-1 border border-gray-300 rounded-lg overflow-hidden">
+            <div class="bg-red-600 text-white p-2">
+                <h1>Bookmark</h1>
+                <p id="bookmarkCount">0</p>
+            </div>
+            <div id="bookmarkContainer"></div>
+        </aside>
+
+        <!--🧩 news details section  -->
+    </main>
+    <!-- js link  -->
+    <script src="./script.js"></script>
+</body>
+
+</html>
