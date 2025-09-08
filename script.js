@@ -34,6 +34,10 @@ const bookmarkContainer = document.getElementById('bookmarkContainer');
 
 const bookmarkCount = document.getElementById('bookmarkCount');
 
+// modal
+const newsDetailsModal = document.getElementById('news-details-modal');
+const modalContainer = document.getElementById('modalContainer');
+
 let bookmarks = [];
 
 const loadCategory = () => {
@@ -119,6 +123,7 @@ const showNewsByCategory = (articles) => {
             <h1 class='font-extrabold'>${article.title}</h1>
             <P class='text-sm'>${article.time}</p>
             <button class='btn'>Bookmark</button>
+            <button class='btn'>View Details</button>
         </div>
     </div>
     
@@ -135,10 +140,10 @@ newsContainer.addEventListener('click', (e) => {
     // console.log(e.target.parentNode.children[0].innerText);
     handleBookmarks(e);
   }
-
-  //   if (e.target.innerText === 'View Details') {
-  //     handleViewDetails(e);
-  //   }
+  //-------------------🔰  View details...modal --v1
+  if (e.target.innerText === 'View Details') {
+    handleViewDetails(e);
+  }
 });
 
 //-------------✨  button  পেরেন্ট এর টাইটেল এবং id কে ধরতে হবে।
@@ -180,6 +185,36 @@ const handleDeleteBookmark = (bookmarkId) => {
   );
   bookmarks = filteredBookmarks;
   showBookmarks(bookmarks);
+};
+
+//-------------------🔰  View details... modal--v2--- function
+handleViewDetails = (e) => {
+  const id = e.target.parentNode.id;
+  // console.log(id);
+  // newsDetailsModal.showModal();  // modal ta dekhacce
+
+  fetch(`https://news-api-fs.vercel.app/api/news/${id}`)
+    .then((res) => res.json())
+    .then((data) => {
+      // console.log(data.article);
+      showDetailsNews(data.article);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+//-----------------------⚡ show View details or modal --v3
+const showDetailsNews = (article) => {
+  console.log(article);
+  newsDetailsModal.showModal();
+
+  modalContainer.innerHTML = ` 
+    <h1>${article.title}</h1>
+    <img src="${article.images[0].url}"/>
+    <p>${article.content.join('')}</p>
+  
+  `;
 };
 
 //-------------------🔰  Loading...

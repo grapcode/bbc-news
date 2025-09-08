@@ -56,8 +56,29 @@
             <div id="bookmarkContainer"></div>
         </aside>
 
-        <!--🧩 news details section  -->
     </main>
+
+    <!--🧩 news details modal section  -->
+    <!-- Open the modal using ID.showModal() method -->
+    <!-- <button class="btn" onclick="my_modal_1.showModal()">open modal</button> -->
+
+    <!-- এই id লাগবে modal টা অপেন করার জন্য  -->
+    <dialog id="news-details-modal" class="modal">
+        <div class="modal-box">
+            <!-- my create div --এই id লাগবে modal মধ্যে data দেখাতে  -->
+            <div id="modalContainer">
+
+            </div>
+
+            <div class="modal-action">
+                <form method="dialog">
+                    <!-- if there is a button in form, it will close the modal -->
+                    <button class="btn">Close</button>
+                </form>
+            </div>
+        </div>
+    </dialog>
+
     <!-- js link  -->
     <script src="./script.js"></script>
 </body>
